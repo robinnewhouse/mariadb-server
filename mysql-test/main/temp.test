@@ -1,0 +1,5 @@
+SET @string_schema= '{
+                       "type":"string",
+                       "pattern":"ab+c"                     
+                     }';
+SELECT JSON_SCHEMA_VALID(@string_schema, '"abc"');
