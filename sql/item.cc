@@ -10820,7 +10820,8 @@ table_map Item_ref_null_helper::used_tables() const
 #ifndef DBUG_OFF
 
 /* Debugger help function */
-static char dbug_item_print_buf[2048];
+#define DBUG_PRINT_SIZE 2048
+static char dbug_item_print_buf[DBUG_PRINT_SIZE];
 
 const char *dbug_print_item(Item *item)
 {
@@ -10842,6 +10843,77 @@ const char *dbug_print_item(Item *item)
     return buf;
   else
     return "Couldn't fit into buffer";
+}
+
+#define BIG_BUF_SIZE 20480
+static char big_buf[BIG_BUF_SIZE];
+
+const char *dbug_print_items(List<Item> &list)
+{
+  asm ("");		// stop optimizer from removing this function
+  List_iterator<Item> li(list);
+  Item *sub_item;
+  int i;
+  strcpy( big_buf, "Children:" );
+  while ((sub_item = li++))
+	if( strlen( big_buf ) < BIG_BUF_SIZE - DBUG_PRINT_SIZE - 7 )
+	  sprintf( big_buf + strlen( big_buf ), "[%02d: %s]", ++i, dbug_print_item(sub_item) );
+	else
+	{
+	  strcat( big_buf, "..." );
+	  break;
+	}
+  return big_buf;
+}
+
+const char *dbug_print_items(Item *item)
+{
+  asm ("");		// stop optimizer from removing this function
+  strncpy( big_buf, dbug_print_item(item), BIG_BUF_SIZE );
+  List_iterator<Item> li;
+  bool show_children = false;
+
+  switch( item->type() )
+  {
+  case Item::COND_ITEM:
+  	li = *((Item_cond*) item)->argument_list();
+		show_children = true;
+		break;
+  default:
+  	;
+  }
+
+  if( show_children )
+  {
+    Item *sub_item;
+		int i;
+		strcat( big_buf, ".Children:" );
+    while ((sub_item = li++))
+			if( strlen( big_buf ) < BIG_BUF_SIZE - DBUG_PRINT_SIZE - 7 )
+				sprintf( big_buf + strlen( big_buf ), "[%02d: %s]", ++i, dbug_print_item(sub_item) );
+			else
+			{
+				strcat( big_buf, "..." );
+				break;
+			}
+  }
+  return big_buf;
+}
+
+#include "my_json_writer.h"
+const char *dbug_print_optrace( )
+{
+  asm ("");		// stop optimizer from removing this function
+  if( current_thd )
+    if( current_thd->opt_trace.is_started() )
+	{
+	  String *s = const_cast <String *> (current_thd->opt_trace.get_current_json()->output.get_string() );
+      return s->c_ptr();
+	}
+    else
+      return "Trace empty";
+  else
+    return "No Thread";
 }
 
 const char *dbug_print_select(SELECT_LEX *sl)
@@ -10891,6 +10963,7 @@ const char *dbug_print_unit(SELECT_LEX_UNIT *un)
 const char *dbug_print(Item *x)            { return dbug_print_item(x);   }
 const char *dbug_print(SELECT_LEX *x)      { return dbug_print_select(x); }
 const char *dbug_print(SELECT_LEX_UNIT *x) { return dbug_print_unit(x);   }
+const char *dbug_print(List<Item> &x)      { return dbug_print_items(x);   }
 
 #endif /*DBUG_OFF*/
 
