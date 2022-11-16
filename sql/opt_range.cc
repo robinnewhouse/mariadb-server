@@ -3919,10 +3919,13 @@ bool prune_partitions(THD *thd, TABLE *table, Item *pprune_cond)
 
   if (!part_info)
     DBUG_RETURN(FALSE); /* not a partitioned table */
-  
+
+  Json_writer_object trace_partition_pruning(thd);
+
   if (!pprune_cond)
   {
     mark_all_partitions_as_used(part_info);
+    trace_partition_pruning.add("partition_prune", "ALL");
     DBUG_RETURN(FALSE);
   }
   
@@ -3940,6 +3943,7 @@ bool prune_partitions(THD *thd, TABLE *table, Item *pprune_cond)
   if (create_partition_index_description(&prune_param))
   {
     mark_all_partitions_as_used(part_info);
+    trace_partition_pruning.add("partition_prune", "ALL");
     free_root(&alloc,MYF(0));		// Return memory & allocator
     DBUG_RETURN(FALSE);
   }
@@ -4073,6 +4077,15 @@ end:
     table->all_partitions_pruned_away= true;
     retval= TRUE;
   }
+
+  {
+    String parts;
+	String_list parts_list;
+
+    make_used_partitions_str(thd->mem_root, prune_param.part_info, &parts, parts_list );
+    trace_partition_pruning.add("partition_prune", parts.ptr());
+  }
+
   DBUG_RETURN(retval);
 }
 
