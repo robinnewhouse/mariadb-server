@@ -16239,7 +16239,12 @@ COND *Item_func_eq::build_equal_items(THD *thd,
     Item_equal *item_equal;
     int n= cond_equal.current_level.elements + eq_list.elements;
     if (n == 0)
-      return (Item*) Item_true;
+    {
+      // can't return a copy of something in read-only memory
+	  // return (Item*) Item_true;
+	  // is this going to leak? nope RSS seems constant.
+	  return new (thd->mem_root) Item_bool(thd, (const char *)"TRUE", 1);
+    }
     else if (n == 1)
     {
       if ((item_equal= cond_equal.current_level.pop()))
