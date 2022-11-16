@@ -10845,60 +10845,89 @@ const char *dbug_print_item(Item *item)
     return "Couldn't fit into buffer";
 }
 
-#define BIG_BUF_SIZE 20480
-static char big_buf[BIG_BUF_SIZE];
+#define DBUG_BIG_BUF_SIZE 20480
+static char big_buf[DBUG_BIG_BUF_SIZE];
 
-const char *dbug_print_items(List<Item> &list)
+const char *dbug_print_items(Item *item);
+void dbug_add_print_items(Item *item);
+void dbug_add_print_items(List<Item> &list)
 {
-  asm ("");		// stop optimizer from removing this function
   List_iterator<Item> li(list);
   Item *sub_item;
-  int i;
-  strcpy( big_buf, "Children:" );
+  strcpy( big_buf + strlen( big_buf ), "Children:" );
   while ((sub_item = li++))
-	if( strlen( big_buf ) < BIG_BUF_SIZE - DBUG_PRINT_SIZE - 7 )
-	  sprintf( big_buf + strlen( big_buf ), "[%02d: %s]", ++i, dbug_print_item(sub_item) );
+	if( strlen( big_buf ) < DBUG_BIG_BUF_SIZE - DBUG_PRINT_SIZE - 7 )
+	{
+	  sprintf( big_buf + strlen( big_buf ), "[%p: ", (void*)sub_item );
+	  dbug_add_print_items(sub_item);
+	  sprintf( big_buf + strlen( big_buf ), "]" );
+	}
 	else
 	{
 	  strcat( big_buf, "..." );
 	  break;
 	}
+  return;
+}
+
+const char *dbug_print_items(List<Item> &list)
+{
+  asm ("");		// stop optimizer from removing this function
+  *big_buf = 0;
+
+  dbug_add_print_items( list );
   return big_buf;
+}
+
+void dbug_add_print_items(Item *item)
+{
+  asm ("");		// stop optimizer from removing this function
+  if( item )
+  {
+	strncpy( big_buf + strlen( big_buf ), dbug_print_item(item), DBUG_BIG_BUF_SIZE );
+	List_iterator<Item> li;
+	bool show_children = false;
+
+	switch( item->type() )
+	{
+	case Item::COND_ITEM:
+	  li = *((Item_cond*) item)->argument_list();
+	  show_children = true;
+	  break;
+	default:
+	  ;
+	}
+
+	if( show_children )
+	{
+	  Item *sub_item;
+	  strcat( big_buf + strlen( big_buf ), ".Children:" );
+	  while ((sub_item = li++))
+		if( strlen( big_buf ) < DBUG_BIG_BUF_SIZE - DBUG_PRINT_SIZE - 7 )
+		{
+		  sprintf( big_buf + strlen( big_buf ), "[%p: ", (void*)sub_item );
+		  dbug_add_print_items(sub_item);
+		  sprintf( big_buf + strlen( big_buf ), "]" );
+		}
+		else
+		{
+		  strcat( big_buf, "..." );
+		  break;
+		}
+	}
+  }
+  return;
 }
 
 const char *dbug_print_items(Item *item)
 {
   asm ("");		// stop optimizer from removing this function
-  strncpy( big_buf, dbug_print_item(item), BIG_BUF_SIZE );
-  List_iterator<Item> li;
-  bool show_children = false;
+  *big_buf = 0;
 
-  switch( item->type() )
-  {
-  case Item::COND_ITEM:
-  	li = *((Item_cond*) item)->argument_list();
-		show_children = true;
-		break;
-  default:
-  	;
-  }
-
-  if( show_children )
-  {
-    Item *sub_item;
-		int i;
-		strcat( big_buf, ".Children:" );
-    while ((sub_item = li++))
-			if( strlen( big_buf ) < BIG_BUF_SIZE - DBUG_PRINT_SIZE - 7 )
-				sprintf( big_buf + strlen( big_buf ), "[%02d: %s]", ++i, dbug_print_item(sub_item) );
-			else
-			{
-				strcat( big_buf, "..." );
-				break;
-			}
-  }
+  dbug_add_print_items( item );
   return big_buf;
 }
+
 
 #include "my_json_writer.h"
 const char *dbug_print_optrace( )
@@ -10906,10 +10935,10 @@ const char *dbug_print_optrace( )
   asm ("");		// stop optimizer from removing this function
   if( current_thd )
     if( current_thd->opt_trace.is_started() )
-	{
-	  String *s = const_cast <String *> (current_thd->opt_trace.get_current_json()->output.get_string() );
+    {
+      String *s = const_cast <String *> (current_thd->opt_trace.get_current_json()->output.get_string() );
       return s->c_ptr();
-	}
+    }
     else
       return "Trace empty";
   else
