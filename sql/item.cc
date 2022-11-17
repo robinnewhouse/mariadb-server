@@ -10901,17 +10901,17 @@ void dbug_add_print_items(Item *item)
       Item *sub_item;
       strncat( big_buf, ".Children:", DBUG_BIG_BUF_SIZE - strlen( big_buf ) );
       while ((sub_item = li++))
-    	if( strlen( big_buf ) < DBUG_BIG_BUF_SIZE - DBUG_PRINT_SIZE - 7 )
-    	{
-    	  sprintf( big_buf + strlen( big_buf ), "[%p: ", (void*)sub_item );
-    	  dbug_add_print_items(sub_item);
-    	  sprintf( big_buf + strlen( big_buf ), "]" );
-    	}
-    	else
-    	{
-    	  strcat( big_buf, "..." );
-    	  break;
-    	}
+      if( strlen( big_buf ) < DBUG_BIG_BUF_SIZE - DBUG_PRINT_SIZE - 7 )
+      {
+        sprintf( big_buf + strlen( big_buf ), "[%p: ", (void*)sub_item );
+        dbug_add_print_items(sub_item);
+        sprintf( big_buf + strlen( big_buf ), "]" );
+      }
+      else
+      {
+        strcat( big_buf, "..." );
+        break;
+      }
     }
   }
   return;
