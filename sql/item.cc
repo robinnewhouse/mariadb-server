@@ -10872,7 +10872,6 @@ void dbug_add_print_items(List<Item> &list)
 
 const char *dbug_print_items(List<Item> &list)
 {
-  asm ("");		// stop optimizer from removing this function
   *big_buf = 0;
 
   dbug_add_print_items( list );
@@ -10881,7 +10880,6 @@ const char *dbug_print_items(List<Item> &list)
 
 void dbug_add_print_items(Item *item)
 {
-  asm ("");		// stop optimizer from removing this function
   if( item )
   {
     strncat( big_buf, dbug_print_item(item), DBUG_BIG_BUF_SIZE - strlen( big_buf ) );
@@ -10921,7 +10919,6 @@ void dbug_add_print_items(Item *item)
 
 const char *dbug_print_items(Item *item)
 {
-  asm ("");		// stop optimizer from removing this function
   *big_buf = 0;
 
   dbug_add_print_items( item );
@@ -10932,7 +10929,6 @@ const char *dbug_print_items(Item *item)
 #include "my_json_writer.h"
 const char *dbug_print_optrace( )
 {
-  asm ("");		// stop optimizer from removing this function
   if( current_thd )
     if( current_thd->opt_trace.is_started() )
     {
