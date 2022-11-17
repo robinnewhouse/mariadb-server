@@ -128,7 +128,8 @@ select * from db1.t1	{
               "attached_conditions_summary": [
                 {
                   "table": "t1",
-                  "attached": null
+                  "attached": null,
+                  "index": null
                 }
               ]
             }
@@ -257,7 +258,8 @@ select * from db1.v1	{
               "attached_conditions_summary": [
                 {
                   "table": "t1",
-                  "attached": null
+                  "attached": null,
+                  "index": null
                 }
               ]
             }
