@@ -4080,7 +4080,7 @@ end:
 
   {
     String parts;
-	String_list parts_list;
+    String_list parts_list;
 
     make_used_partitions_str(thd->mem_root, prune_param.part_info, &parts, parts_list );
     trace_partition_pruning.add("partition_prune", parts.ptr());
