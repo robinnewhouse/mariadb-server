@@ -405,7 +405,7 @@ int Item::save_str_value_in_field(Field *field, String *result)
     return set_field_to_null(field);
   field->set_notnull();
   return field->store(result->ptr(), result->length(),
-		      collation.collation);
+    	      collation.collation);
 }
 
 
@@ -2251,7 +2251,7 @@ public:
   @param fields		        All fields in select
   @param ref			Pointer to item
   @param split_flags            Zero or more of the following flags
-	                        SPLIT_FUNC_SKIP_REGISTERED:
+                            SPLIT_FUNC_SKIP_REGISTERED:
                                 Function be must skipped for registered SUM
                                 SUM items
                                 SPLIT_SUM_SELECT
@@ -2450,11 +2450,11 @@ bool DTCollation::aggregate(const DTCollation &dt, uint flags)
     {
       if (derivation <= dt.derivation)
       {
-	/* Do nothing */
+    /* Do nothing */
       }
       else
       {
-	set(dt); 
+    set(dt); 
       }
     }
     else if (dt.collation == &my_charset_bin)
@@ -3235,7 +3235,7 @@ LEX_CSTRING Item_ident::full_name_cstring() const
   {
     THD *thd= current_thd;
     tmp=(char*) thd->alloc((uint) db_name.length+ (uint) table_name.length +
-			   (uint) field_name.length+3);
+    		   (uint) field_name.length+3);
     length= (strxmov(tmp,db_name.str,".",table_name.str,".",field_name.str,
                      NullS) - tmp);
   }
@@ -3490,11 +3490,11 @@ bool Item_field::eq(const Item *item, bool binary_cmp) const
   */
   return (!lex_string_cmp(system_charset_info, &item_field->name,
                           &field_name) &&
-	  (!item_field->table_name.str || !table_name.str ||
-	   (!my_strcasecmp(table_alias_charset, item_field->table_name.str,
-			   table_name.str) &&
-	    (!item_field->db_name.str || !db_name.str ||
-	     (item_field->db_name.str && !strcmp(item_field->db_name.str,
+      (!item_field->table_name.str || !table_name.str ||
+       (!my_strcasecmp(table_alias_charset, item_field->table_name.str,
+    		   table_name.str) &&
+        (!item_field->db_name.str || !db_name.str ||
+         (item_field->db_name.str && !strcmp(item_field->db_name.str,
                                                  db_name.str))))));
 }
 
@@ -6031,7 +6031,7 @@ bool Item_field::fix_fields(THD *thd, Item **reference)
                                             IGNORE_EXCEPT_NON_UNIQUE,
                                           !any_privileges,
                                           TRUE)) ==
-	not_found_field)
+    not_found_field)
     {
       int ret;
 
@@ -7138,8 +7138,8 @@ void Item_float::print(String *str, enum_query_type query_type)
 inline uint char_val(char X)
 {
   return (uint) (X >= '0' && X <= '9' ? X-'0' :
-		 X >= 'A' && X <= 'Z' ? X-'A'+10 :
-		 X-'a'+10);
+    	 X >= 'A' && X <= 'Z' ? X-'A'+10 :
+    	 X-'a'+10);
 }
 
 
@@ -10178,7 +10178,7 @@ Item *Item_cache_int::convert_to_basic_const_item(THD *thd)
     cache_value();
   new_item= null_value ?
             (Item*) new (thd->mem_root) Item_null(thd) :
-	    (Item*) new (thd->mem_root) Item_int(thd, val_int(), max_length);
+        (Item*) new (thd->mem_root) Item_int(thd, val_int(), max_length);
   return new_item;
 } 
 
@@ -10402,7 +10402,7 @@ Item *Item_cache_real::convert_to_basic_const_item(THD *thd)
     cache_value();
   new_item= null_value ?
             (Item*) new (thd->mem_root) Item_null(thd) :
-	    (Item*) new (thd->mem_root) Item_float(thd, val_real(),
+        (Item*) new (thd->mem_root) Item_float(thd, val_real(),
                                                    decimals);
   return new_item;
 } 
@@ -10537,7 +10537,7 @@ bool Item_cache_row::allocate(THD *thd, uint num)
 {
   item_count= num;
   return (!(values= 
-	    (Item_cache **) thd->calloc(sizeof(Item_cache *)*item_count)));
+        (Item_cache **) thd->calloc(sizeof(Item_cache *)*item_count)));
 }
 
 
@@ -10646,13 +10646,13 @@ bool Item_cache_row::null_inside()
     if (values[i]->cols() > 1)
     {
       if (values[i]->null_inside())
-	return 1;
+    return 1;
     }
     else
     {
       values[i]->update_null_value();
       if (values[i]->null_value)
-	return 1;
+    return 1;
     }
   }
   return 0;
@@ -10856,17 +10856,17 @@ void dbug_add_print_items(List<Item> &list)
   Item *sub_item;
   strcpy( big_buf + strlen( big_buf ), "Children:" );
   while ((sub_item = li++))
-	if( strlen( big_buf ) < DBUG_BIG_BUF_SIZE - DBUG_PRINT_SIZE - 7 )
-	{
-	  sprintf( big_buf + strlen( big_buf ), "[%p: ", (void*)sub_item );
-	  dbug_add_print_items(sub_item);
-	  sprintf( big_buf + strlen( big_buf ), "]" );
-	}
-	else
-	{
-	  strcat( big_buf, "..." );
-	  break;
-	}
+    if( strlen( big_buf ) < DBUG_BIG_BUF_SIZE - DBUG_PRINT_SIZE - 7 )
+    {
+      sprintf( big_buf + strlen( big_buf ), "[%p: ", (void*)sub_item );
+      dbug_add_print_items(sub_item);
+      sprintf( big_buf + strlen( big_buf ), "]" );
+    }
+    else
+    {
+      strcat( big_buf, "..." );
+      break;
+    }
   return;
 }
 
@@ -10884,37 +10884,37 @@ void dbug_add_print_items(Item *item)
   asm ("");		// stop optimizer from removing this function
   if( item )
   {
-	strncpy( big_buf + strlen( big_buf ), dbug_print_item(item), DBUG_BIG_BUF_SIZE );
-	List_iterator<Item> li;
-	bool show_children = false;
+    strncat( big_buf, dbug_print_item(item), DBUG_BIG_BUF_SIZE - strlen( big_buf ) );
+    List_iterator<Item> li;
+    bool show_children = false;
 
-	switch( item->type() )
-	{
-	case Item::COND_ITEM:
-	  li = *((Item_cond*) item)->argument_list();
-	  show_children = true;
-	  break;
-	default:
-	  ;
-	}
+    switch( item->type() )
+    {
+    case Item::COND_ITEM:
+      li= *((Item_cond*) item)->argument_list();
+      show_children = true;
+      break;
+    default:
+      ;
+    }
 
-	if( show_children )
-	{
-	  Item *sub_item;
-	  strcat( big_buf + strlen( big_buf ), ".Children:" );
-	  while ((sub_item = li++))
-		if( strlen( big_buf ) < DBUG_BIG_BUF_SIZE - DBUG_PRINT_SIZE - 7 )
-		{
-		  sprintf( big_buf + strlen( big_buf ), "[%p: ", (void*)sub_item );
-		  dbug_add_print_items(sub_item);
-		  sprintf( big_buf + strlen( big_buf ), "]" );
-		}
-		else
-		{
-		  strcat( big_buf, "..." );
-		  break;
-		}
-	}
+    if( show_children )
+    {
+      Item *sub_item;
+      strncat( big_buf, ".Children:", DBUG_BIG_BUF_SIZE - strlen( big_buf ) );
+      while ((sub_item = li++))
+    	if( strlen( big_buf ) < DBUG_BIG_BUF_SIZE - DBUG_PRINT_SIZE - 7 )
+    	{
+    	  sprintf( big_buf + strlen( big_buf ), "[%p: ", (void*)sub_item );
+    	  dbug_add_print_items(sub_item);
+    	  sprintf( big_buf + strlen( big_buf ), "]" );
+    	}
+    	else
+    	{
+    	  strcat( big_buf, "..." );
+    	  break;
+    	}
+    }
   }
   return;
 }

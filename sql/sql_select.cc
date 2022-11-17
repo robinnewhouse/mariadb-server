@@ -3310,14 +3310,14 @@ int JOIN::optimize_stage2()
   error= 0;
 
   if (unlikely(thd->trace_started()))
-  {	// trace condition
+  {
     Json_writer_object	trace_wrapper(thd);
     Json_writer_object	trace_conditions(thd, "attaching_conditions_to_tables");
     Json_writer_array	trace_attached_comp(thd, "attached_conditions_computation");
 
     if (unlikely(thd->trace_started()))
     {
-  	  JOIN_TAB				*tab;
+      JOIN_TAB				*tab;
 
       trace_attached_comp.end();
       Json_writer_array		trace_attached_summary(thd, "attached_conditions_summary");
@@ -3328,7 +3328,7 @@ int JOIN::optimize_stage2()
           continue;
 
         Item *const remaining_cond = tab->select_cond;
-		Item *const idx_cond = tab->table->file->pushed_idx_cond;
+        Item *const idx_cond = tab->table->file->pushed_idx_cond;
         Json_writer_object		trace_one_table(thd);
 
         trace_one_table.add_table_name(tab);
