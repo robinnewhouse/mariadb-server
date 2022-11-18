@@ -79,6 +79,10 @@ analyze table t2;
 
 explain select * from t1,t2 where t1.a=t2.b+2 and t2.a= t1.b;
 select * from information_schema.OPTIMIZER_TRACE;
+
+explain select * from t1,t2 where t2.a=t1.b-2 and t1.a= t2.b;
+select * from information_schema.OPTIMIZER_TRACE;
+
 drop table t1,t2,t0;
 
 --echo #

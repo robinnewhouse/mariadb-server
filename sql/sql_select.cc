@@ -3311,16 +3311,16 @@ int JOIN::optimize_stage2()
 
   if (unlikely(thd->trace_started()))
   {
-    Json_writer_object	trace_wrapper(thd);
-    Json_writer_object	trace_conditions(thd, "attaching_conditions_to_tables");
-    Json_writer_array	trace_attached_comp(thd, "attached_conditions_computation");
+    Json_writer_object  trace_wrapper(thd);
+    Json_writer_object  trace_conditions(thd, "attaching_conditions_to_tables");
+    Json_writer_array   trace_attached_comp(thd, "attached_conditions_computation");
 
     if (unlikely(thd->trace_started()))
     {
-      JOIN_TAB				*tab;
+      JOIN_TAB  *tab;
 
       trace_attached_comp.end();
-      Json_writer_array		trace_attached_summary(thd, "attached_conditions_summary");
+      Json_writer_array  trace_attached_summary(thd, "attached_conditions_summary");
 
       for (tab= first_depth_first_tab(this); tab; tab= next_depth_first_tab(this, tab))
       {
@@ -3329,7 +3329,7 @@ int JOIN::optimize_stage2()
 
         Item *const remaining_cond = tab->select_cond;
         Item *const idx_cond = tab->table->file->pushed_idx_cond;
-        Json_writer_object		trace_one_table(thd);
+        Json_writer_object  trace_one_table(thd);
 
         trace_one_table.add_table_name(tab);
         trace_one_table.add("attached", remaining_cond);
@@ -12422,12 +12422,7 @@ make_join_select(JOIN *join,SQL_SELECT *select,COND *cond)
     /*
       Step #2: Extract WHERE/ON parts
     */
-	/*
-    Json_writer_object trace_wrapper(thd);
-    Json_writer_object trace_conditions(thd, "attaching_conditions_to_tables");
-    Json_writer_array trace_attached_comp(thd,
-                                        "attached_conditions_computation");
-	*/
+
     uint i;
     for (i= join->top_join_tab_count - 1; i >= join->const_tables; i--)
     {

@@ -1232,6 +1232,281 @@ explain select * from t1,t2 where t1.a=t2.b+2 and t2.a= t1.b	{
     }
   ]
 }	0	0
+explain select * from t1,t2 where t2.a=t1.b-2 and t1.a= t2.b;
+id	select_type	table	type	possible_keys	key	key_len	ref	rows	Extra
+1	SIMPLE	t1	ALL	a	NULL	NULL	NULL	100	
+1	SIMPLE	t2	ref	a	a	5	func	1	Using index condition; Using where
+select * from information_schema.OPTIMIZER_TRACE;
+QUERY	TRACE	MISSING_BYTES_BEYOND_MAX_MEM_SIZE	INSUFFICIENT_PRIVILEGES
+explain select * from t1,t2 where t2.a=t1.b-2 and t1.a= t2.b	{
+  "steps": [
+    {
+      "join_preparation": {
+        "select_id": 1,
+        "steps": [
+          {
+            "expanded_query": "select t1.a AS a,t1.b AS b,t1.c AS c,t2.a AS a,t2.b AS b,t2.c AS c from t1 join t2 where t2.a = t1.b - 2 and t1.a = t2.b"
+          }
+        ]
+      }
+    },
+    {
+      "join_optimization": {
+        "select_id": 1,
+        "steps": [
+          {
+            "condition_processing": {
+              "condition": "WHERE",
+              "original_condition": "t2.a = t1.b - 2 and t1.a = t2.b",
+              "steps": [
+                {
+                  "transformation": "equality_propagation",
+                  "resulting_condition": "t2.a = t1.b - 2 and multiple equal(t1.a, t2.b)"
+                },
+                {
+                  "transformation": "constant_propagation",
+                  "resulting_condition": "t2.a = t1.b - 2 and multiple equal(t1.a, t2.b)"
+                },
+                {
+                  "transformation": "trivial_condition_removal",
+                  "resulting_condition": "t2.a = t1.b - 2 and multiple equal(t1.a, t2.b)"
+                }
+              ]
+            }
+          },
+          {
+            "table_dependencies": [
+              {
+                "table": "t1",
+                "row_may_be_null": false,
+                "map_bit": 0,
+                "depends_on_map_bits": []
+              },
+              {
+                "table": "t2",
+                "row_may_be_null": false,
+                "map_bit": 1,
+                "depends_on_map_bits": []
+              }
+            ]
+          },
+          {
+            "ref_optimizer_key_uses": [
+              {
+                "table": "t1",
+                "index": "a",
+                "field": "a",
+                "equals": "t2.b",
+                "null_rejecting": true
+              },
+              {
+                "table": "t2",
+                "index": "a",
+                "field": "a",
+                "equals": "t1.b - 2",
+                "null_rejecting": true
+              }
+            ]
+          },
+          {
+            "rows_estimation": [
+              {
+                "table": "t1",
+                "table_scan": {
+                  "rows": 100,
+                  "cost": 2.317382812
+                }
+              },
+              {
+                "table": "t2",
+                "table_scan": {
+                  "rows": 100,
+                  "cost": 2.317382812
+                }
+              }
+            ]
+          },
+          {
+            "considered_execution_plans": [
+              {
+                "plan_prefix": [],
+                "get_costs_for_tables": [
+                  {
+                    "best_access_path": {
+                      "table": "t1",
+                      "considered_access_paths": [
+                        {
+                          "access_type": "scan",
+                          "resulting_rows": 100,
+                          "cost": 2.317382812,
+                          "chosen": true
+                        }
+                      ],
+                      "chosen_access_method": {
+                        "type": "scan",
+                        "records": 100,
+                        "cost": 2.317382812,
+                        "uses_join_buffering": false
+                      }
+                    }
+                  },
+                  {
+                    "best_access_path": {
+                      "table": "t2",
+                      "considered_access_paths": [
+                        {
+                          "access_type": "scan",
+                          "resulting_rows": 100,
+                          "cost": 2.317382812,
+                          "chosen": true
+                        }
+                      ],
+                      "chosen_access_method": {
+                        "type": "scan",
+                        "records": 100,
+                        "cost": 2.317382812,
+                        "uses_join_buffering": false
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "plan_prefix": [],
+                "table": "t1",
+                "rows_for_plan": 100,
+                "cost_for_plan": 22.31738281,
+                "rest_of_plan": [
+                  {
+                    "plan_prefix": ["t1"],
+                    "get_costs_for_tables": [
+                      {
+                        "best_access_path": {
+                          "table": "t2",
+                          "considered_access_paths": [
+                            {
+                              "access_type": "ref",
+                              "index": "a",
+                              "used_range_estimates": false,
+                              "reason": "not available",
+                              "rows": 1,
+                              "cost": 200.0585794,
+                              "chosen": true
+                            },
+                            {
+                              "access_type": "scan",
+                              "resulting_rows": 100,
+                              "cost": 2.317382812,
+                              "chosen": false
+                            }
+                          ],
+                          "chosen_access_method": {
+                            "type": "ref",
+                            "records": 1,
+                            "cost": 200.0585794,
+                            "uses_join_buffering": false
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "plan_prefix": ["t1"],
+                    "table": "t2",
+                    "rows_for_plan": 100,
+                    "cost_for_plan": 242.3759623
+                  }
+                ]
+              },
+              {
+                "plan_prefix": [],
+                "table": "t2",
+                "rows_for_plan": 100,
+                "cost_for_plan": 22.31738281,
+                "rest_of_plan": [
+                  {
+                    "plan_prefix": ["t2"],
+                    "get_costs_for_tables": [
+                      {
+                        "best_access_path": {
+                          "table": "t1",
+                          "considered_access_paths": [
+                            {
+                              "access_type": "ref",
+                              "index": "a",
+                              "used_range_estimates": false,
+                              "reason": "not available",
+                              "rows": 1,
+                              "cost": 200.0585794,
+                              "chosen": true
+                            },
+                            {
+                              "access_type": "scan",
+                              "resulting_rows": 100,
+                              "cost": 2.317382812,
+                              "chosen": false
+                            }
+                          ],
+                          "chosen_access_method": {
+                            "type": "ref",
+                            "records": 1,
+                            "cost": 200.0585794,
+                            "uses_join_buffering": false
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "plan_prefix": ["t2"],
+                    "table": "t1",
+                    "rows_for_plan": 100,
+                    "cost_for_plan": 242.3759623,
+                    "pruned_by_cost": true,
+                    "current_cost": 242.3759623,
+                    "best_cost": 242.3759623
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "best_join_order": ["t1", "t2"]
+          },
+          {
+            "substitute_best_equal": {
+              "condition": "WHERE",
+              "resulting_condition": "t2.b = t1.a and t2.a = t1.b - 2"
+            }
+          },
+          {
+            "attaching_conditions_to_tables": {
+              "attached_conditions_computation": [],
+              "attached_conditions_summary": [
+                {
+                  "table": "t1",
+                  "attached": null,
+                  "index": null
+                },
+                {
+                  "table": "t2",
+                  "attached": "t2.b = t1.a",
+                  "index": "t2.a = t1.b - 2"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "join_execution": {
+        "select_id": 1,
+        "steps": []
+      }
+    }
+  ]
+}	0	0
 drop table t1,t2,t0;
 #
 # group_by min max optimization
