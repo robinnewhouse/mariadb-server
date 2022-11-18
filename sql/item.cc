@@ -10875,7 +10875,7 @@ void dbug_add_print_items(List<Item> &list)
 
 const char *dbug_print_items(List<Item> &list)
 {
-  *big_buf = 0;
+  *big_buf= 0;
 
   dbug_add_print_items( list );
   return big_buf;
@@ -10904,7 +10904,7 @@ void dbug_add_print_items(Item *item)
     {
       Item *sub_item;
       strncat( big_buf, ".Children:", DBUG_BIG_BUF_SIZE - strlen( big_buf ) );
-      while ((sub_item = li++))
+      while ((sub_item= li++))
       if ( strlen( big_buf ) < DBUG_BIG_BUF_SIZE - DBUG_PRINT_SIZE - 7 )
       {
         sprintf( big_buf + strlen( big_buf ), "[%p: ", (void*)sub_item );
@@ -10924,7 +10924,7 @@ void dbug_add_print_items(Item *item)
 
 const char *dbug_print_items(Item *item)
 {
-  *big_buf = 0;
+  *big_buf= 0;
 
   dbug_add_print_items( item );
   return big_buf;
@@ -10937,7 +10937,7 @@ const char *dbug_print_optrace( )
   if ( current_thd )
     if ( current_thd->opt_trace.is_started() )
     {
-      String *s = const_cast <String *> (current_thd->opt_trace.get_current_json()->output.get_string() );
+      String *s= const_cast <String *> (current_thd->opt_trace.get_current_json()->output.get_string() );
       return s->c_ptr();
     }
     else
