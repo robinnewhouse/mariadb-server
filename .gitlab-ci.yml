@@ -2,6 +2,10 @@
 
 stages:
   - build
+  - metrics-1
+  - metrics-2
+  - metrics-3
+  - metrics-4
 
 default:
   image: fedora:latest
@@ -12,6 +16,7 @@ variables:
 
 mini-benchmark:
   stage: build
+  allow_failure: true
   tags: 
     - benchmark
   variables:
@@ -61,3 +66,65 @@ mini-benchmark:
     key: $CI_COMMIT_REF_NAME
     paths:
       - .ccache
+
+.check-cycles-script: &check-cycles-script
+  - |
+    cp -av $CI_PROJECT_DIR/mini-benchmark*/* $CI_PROJECT_DIR
+    # Print performance counter summary if they were logged
+    if grep --quiet cycles sysbench-run-*.log
+    then
+      grep -e cycles sysbench-run-*.log | sort -k 2
+      echo "Total: $(grep -h -e cycles sysbench-run-*.log | sort -k 1 | awk '{s+=$1}END{print s}')"
+      echo # Newline improves readability
+      grep -e instructions sysbench-run-*.log | sort -k 2
+      echo "Total: $(grep -h -e instructions sysbench-run-*.log | sort -k 1 | awk '{s+=$1}END{print s}')"
+      echo # Newline improves readability
+
+      CPU_CYCLE_LIMIT_LONG="${CPU_CYCLE_LIMIT}000000000"
+
+      # Final verdict based on cpu cycle count
+      RESULT="$(grep -h -e cycles sysbench-run-*.log | sort -k 1 | awk '{s+=$1}END{print s}')"
+      if [ "$RESULT" -gt "$CPU_CYCLE_LIMIT_LONG" ]
+      then
+        echo # Newline improves readability
+        echo "Benchmark exceeded the allowed limit of ${CPU_CYCLE_LIMIT} billion CPU cycles"
+        echo "Performance most likely regressed!"
+        exit 1
+      fi
+    fi
+
+less-than-800B-cycles:
+  stage: metrics-1
+  dependencies: [mini-benchmark]
+  needs: [mini-benchmark]
+  variables:
+    CPU_CYCLE_LIMIT: 800
+  script:
+    *check-cycles-script
+
+less-than-750B-cycles:
+  stage: metrics-2
+  dependencies: [mini-benchmark]
+  needs: [mini-benchmark]
+  variables:
+    CPU_CYCLE_LIMIT: 750
+  script:
+    *check-cycles-script
+
+less-than-700B-cycles:
+  stage: metrics-3
+  dependencies: [mini-benchmark]
+  needs: [mini-benchmark]
+  variables:
+    CPU_CYCLE_LIMIT: 700
+  script:
+    *check-cycles-script
+
+less-than-650B-cycles:
+  stage: metrics-4
+  dependencies: [mini-benchmark]
+  needs: [mini-benchmark]
+  variables:
+    CPU_CYCLE_LIMIT: 650
+  script:
+    *check-cycles-script
