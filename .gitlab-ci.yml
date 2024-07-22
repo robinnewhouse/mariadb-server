@@ -22,6 +22,7 @@ mini-benchmark:
   variables:
     GIT_STRATEGY: fetch
     GIT_SUBMODULE_STRATEGY: normal
+    PERF: --perf
   script:
     # Get mini-benchmark script
     - |
@@ -57,7 +58,7 @@ mini-benchmark:
     - /usr/local/mysql/bin/mariadb-upgrade -u root
     # Run mini-benchmark
     - yum install -y sysbench procps-ng perf flamegraph flamegraph-stackcollapse-perf util-linux dnf-utils
-    - $CI_PROJECT_DIR/support-files/mini-benchmark.sh --perf
+    - $CI_PROJECT_DIR/support-files/mini-benchmark.sh $PERF
     - cp -av $CI_PROJECT_DIR/*/sysbench-run-*.log $CI_PROJECT_DIR/*/metrics.txt $CI_PROJECT_DIR  # Move files one level down so they can be saved as artifacts
   artifacts:
     when: always
