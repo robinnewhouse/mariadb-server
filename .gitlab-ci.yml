@@ -24,8 +24,12 @@ mini-benchmark:
     GIT_SUBMODULE_STRATEGY: normal
   script:
     # Get mini-benchmark script
-    - curl -o $CI_PROJECT_DIR/support-files/mini-benchmark.sh https://raw.githubusercontent.com/MariaDB/server/535711055643952df05774ddb0c94858101be5f6/support-files/mini-benchmark.sh
-    - chmod +x $CI_PROJECT_DIR/support-files/mini-benchmark.sh
+    - |
+      if [ ! -f "$CI_PROJECT_DIR/support-files/mini-benchmark.sh" ]; then
+        echo "Warning: mini-benchmark.sh not found, downloading from upstream repository."
+        curl -o "$CI_PROJECT_DIR/support-files/mini-benchmark.sh" https://raw.githubusercontent.com/MariaDB/server/535711055643952df05774ddb0c94858101be5f6/support-files/mini-benchmark.sh
+      fi
+    - chmod +x "$CI_PROJECT_DIR/support-files/mini-benchmark.sh"
     # Set up ccache
     - yum install -y ccache  # From EPEL
     - source /etc/profile.d/ccache.sh
