@@ -17,7 +17,9 @@ display_help() {
   echo "                     example: --threads \"1 32 64 128\""
   echo "                     default: \"1 2 4 8 16\""
   echo "  --duration INTEGER duration of each thread run in seconds"
-  echo "                     default: 60"
+  echo "                     default: 0 (unlimited)"
+  echo "  --events INTEGER   number of transactions per thread to execute for each test"
+  echo "                     default: 10000"
   echo "  --workload STRING  sysbench workload to execute"
   echo "                     default: oltp_read_write"
   echo "  --log              logs the mini-benchmark stdout/stderr into the"
@@ -34,7 +36,8 @@ display_help() {
 # Default parameters
 BENCHMARK_NAME='mini-benchmark'
 THREADS='1 2 4 8 16'
-DURATION=60
+DURATION=0
+EVENTS=10000
 WORKLOAD='oltp_read_write'
 
 while :
@@ -62,6 +65,11 @@ do
     --duration)
       shift
       DURATION=$1
+      shift
+      ;;
+    --events)
+      shift
+      EVENTS=$1
       shift
       ;;
     --workload)
@@ -233,7 +241,7 @@ do
   # Prepend command with perf if defined
   # Output stderr to stdout as perf outputs everything in stderr
   # shellcheck disable=SC2086
-  $PERF_COMMAND $TASKSET_SYSBENCH sysbench "$WORKLOAD" run --threads=$t --time=$DURATION --report-interval=10 2>&1 | tee sysbench-run-$t.log
+  $PERF_COMMAND $TASKSET_SYSBENCH sysbench "$WORKLOAD" run --threads=$t --events=$(($EVENTS * $t)) --time=$DURATION --report-interval=10 2>&1 | tee sysbench-run-$t.log
 done
 
 sysbench "$WORKLOAD" cleanup --tables=20 | tee sysbench-cleanup.log
