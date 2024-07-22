@@ -110,6 +110,7 @@ done
 TIMESTAMP="$(date -Iseconds)"
 mkdir "$BENCHMARK_NAME-$TIMESTAMP"
 cd "$BENCHMARK_NAME-$TIMESTAMP" || exit 1
+FAIL=false
 
 (
 # Check that the dependencies of this script are available
@@ -272,12 +273,13 @@ then
 
   # Final verdict based on cpu cycle count
   RESULT="$(grep -h -e cycles sysbench-run-*.log | sort -k 1 | awk '{s+=$1}END{print s}')"
+  echo "CPU cycle count: $(RESULT)"
   if [ "$RESULT" -gt "$CPU_CYCLE_LIMIT_LONG" ]
   then
     echo # Newline improves readability
     echo "Benchmark exceeded the allowed limit of ${CPU_CYCLE_LIMIT} billion CPU cycles"
     echo "Performance most likely regressed!"
-    exit 1
+    FAIL=true
   fi
 fi
 
@@ -310,12 +312,13 @@ case $RESULT in
     then
       echo # Newline improves readability
       echo "Benchmark did not reach 13000+ qps, performance most likely regressed!"
-      exit 1
+      FAIL=true
     else
-      echo "Banchmark passed with $RESULT queries per second as peak value"
+      echo "Benchmark passed with $RESULT queries per second as peak value"
     fi
     ;;
 esac
+if $FAIL ; then exit 1 ; fi
 # Record the output into the log file, if requested
 ) 2>&1 | ($LOG && tee "$BENCHMARK_NAME"-"$TIMESTAMP".log)
 exit ${PIPESTATUS[0]} # Propagate errors in the sub-shell
