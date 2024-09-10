@@ -273,7 +273,7 @@ then
 
   # Final verdict based on cpu cycle count
   RESULT="$(grep -h -e cycles sysbench-run-*.log | sort -k 1 | awk '{s+=$1}END{print s}')"
-  echo "CPU cycle count: $(RESULT)"
+  echo "CPU cycle count: ${RESULT}"
   if [ "$RESULT" -gt "$CPU_CYCLE_LIMIT_LONG" ]
   then
     echo # Newline improves readability

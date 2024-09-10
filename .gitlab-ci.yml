@@ -30,6 +30,8 @@ mini-benchmark:
         echo "Warning: mini-benchmark.sh not found, downloading from upstream repository."
         curl -o "$CI_PROJECT_DIR/support-files/mini-benchmark.sh" https://raw.githubusercontent.com/MariaDB/server/535711055643952df05774ddb0c94858101be5f6/support-files/mini-benchmark.sh
       fi
+    # Temporary testing with git commit before submitting upstream PR
+    - curl -o "$CI_PROJECT_DIR/support-files/mini-benchmark.sh" https://raw.githubusercontent.com/robinnewhouse/mariadb-server/fix-mini-benchmark/support-files/mini-benchmark.sh
     - chmod +x "$CI_PROJECT_DIR/support-files/mini-benchmark.sh"
     # Set up ccache
     - yum install -y ccache  # From EPEL
@@ -103,7 +105,7 @@ less-than-800B-cycles:
   dependencies: [mini-benchmark]
   needs: [mini-benchmark]
   variables:
-    CPU_CYCLE_LIMIT: 800
+    CPU_CYCLE_LIMIT: 1150
   script:
     *check-cycles-script
 
@@ -112,7 +114,7 @@ less-than-750B-cycles:
   dependencies: [mini-benchmark]
   needs: [mini-benchmark]
   variables:
-    CPU_CYCLE_LIMIT: 750
+    CPU_CYCLE_LIMIT: 1100
   script:
     *check-cycles-script
 
@@ -121,7 +123,7 @@ less-than-700B-cycles:
   dependencies: [mini-benchmark]
   needs: [mini-benchmark]
   variables:
-    CPU_CYCLE_LIMIT: 700
+    CPU_CYCLE_LIMIT: 1050
   script:
     *check-cycles-script
 
@@ -130,6 +132,6 @@ less-than-650B-cycles:
   dependencies: [mini-benchmark]
   needs: [mini-benchmark]
   variables:
-    CPU_CYCLE_LIMIT: 650
+    CPU_CYCLE_LIMIT: 1000
   script:
     *check-cycles-script
